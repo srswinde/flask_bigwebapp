@@ -91,6 +91,7 @@ function ConvertSexagesimal(num)
 	var mins = 60*(whole - parseInt( whole ));
 	var secs = 60*(mins - parseInt( mins ));
 	var sex = sign+parseInt(whole)+":"+pad( parseInt(mins), 2)+":"+pad( (secs).toFixed(1), 4);
+	console.log(num, sex);
 	//$("#ra_sex").text(sex);
 	return sex;
 	
@@ -98,9 +99,9 @@ function ConvertSexagesimal(num)
 
 function format(data)
 {
-	var lst = data.ngtelem.sidereal_time/12.0;
+	var lst = data.ngtelem.sidereal_time/15.0;
 	$( "td#lst_sex" ).text( ConvertSexagesimal(lst) )
-	var ra = data.ngtelem.right_ascension/12.0;
+	var ra = data.ngtelem.right_ascension/15.0;
 	$("span#ra_sex").text( ConvertSexagesimal(ra) );
 
 	var dec = data.ngtelem.declination;
