@@ -91,8 +91,7 @@ function ConvertSexagesimal(num)
 	var mins = 60*(whole - parseInt( whole ));
 	var secs = 60*(mins - parseInt( mins ));
 	var sex = sign+parseInt(whole)+":"+pad( parseInt(mins), 2)+":"+pad( (secs).toFixed(1), 4);
-	console.log(num, sex);
-	//$("#ra_sex").text(sex);
+
 	return sex;
 	
 }
@@ -134,9 +133,9 @@ function CheckThreshold(data)
 	if(parseFloat(data.boltwood.iHumidity) > 80)
 		$("#__boltwood__iHumidity").css("background-color", "red")
 	else if(parseFloat(data.boltwood.iHumidity) > 70)
-		$("#__humidity__iHumidity").css("background-color", "yellow")
+		$("#__boltwood__iHumidity").css("background-color", "yellow")
 	else
-		$("#__humidity__iHumidity").css("background-color", "transparent")
+		$("#__boltwood__iHumidity").css("background-color", "transparent")
 
 }
 
