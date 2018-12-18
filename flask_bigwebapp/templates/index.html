@@ -1,0 +1,271 @@
+<html>
+
+
+<head>	
+<title>Bigelow Weather</title>
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<!-- include Aladin Lite CSS file in the head section of your page 
+<link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
+-->
+
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js" charset="utf-8"></script>
+
+<!--<script type="text/javascript" src="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.js" charset="utf-8"></script>-->
+
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>-->
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<!--<script src="../astro/astroAngle.js"></script>-->
+<script src=/static/getter.js></script>
+
+<style>
+		body
+		{	
+			background-color:#cccccc;
+			
+		}
+		div.tinfo
+		{
+			border:solid 1px black;
+			font-weight:bold;
+			font-size:25px;
+			float:left;
+			padding:10px;
+			margin:5px;
+			background-color : rgba(0,0,255,0.1);
+			box-shadow: 5px 5px gray;
+
+		}
+		span.coords
+		{
+			font-weight:normal;
+		}
+		table.telem_table
+		{
+			font-size:25px;
+		}
+		td
+		{
+			font-size:25px;
+			padding-left:10px;
+			padding-right:10px;
+			
+		}
+		td.fixed
+		{
+			font-weight:bold;
+		}
+		span.title
+		{
+			padding:5px;
+			display:block;
+			background:#aaaaff;
+			border-radius:5px
+		}
+		
+		table
+		{
+			border-collapse:collapse;
+		}
+
+</style>
+
+<script>
+function updateAladin(data)
+{
+	var ra = parseFloat(data.ngtelem.right_ascension);
+	var dec = parseFloat(data.ngtelem.declination);
+	aladin.gotoRaDec( ra, dec);
+}
+
+function ConvertSexagesimal(num)
+{
+	sign="";
+	if( num < 0)
+	{
+		num=Math.abs(num);
+		sign="-";
+	}
+
+	var whole = num;
+	var mins = 60*(whole - parseInt( whole ));
+	var secs = 60*(mins - parseInt( mins ));
+	var sex = sign+parseInt(whole)+":"+pad( parseInt(mins), 2)+":"+pad( (secs).toFixed(1), 4);
+	//$("#ra_sex").text(sex);
+	return sex;
+	
+}
+
+function format(data)
+{
+	var lst = data.ngtelem.sidereal_time/12.0;
+	$( "td#lst_sex" ).text( ConvertSexagesimal(lst) )
+	var ra = data.ngtelem.right_ascension/12.0;
+	$("span#ra_sex").text( ConvertSexagesimal(ra) );
+
+	var dec = data.ngtelem.declination;
+	if(dec > 180 )
+		dec = dec-360;
+	var sign="";
+	if( dec > 0 )
+		sign="+";
+
+	var strdec = ConvertSexagesimal(dec);
+	$("span#dec_sex").text(sign+strdec);
+}
+
+function pad (str, max) 
+{
+	str = str.toString();
+	return str.length < max ? pad("0" + str, max) : str;
+}
+
+function CheckThreshold(data)
+{
+	if(parseFloat(data.humidity.humidity) > 85)
+		$("#__humidity__humidity").css("background-color", "red")
+	else if(parseFloat(data.humidity.humidity) > 75)
+		$("#__humidity__humidity").css("background-color", "yellow")
+	else
+
+		$("#__humidity__humidity").css("background-color", "transparent")	
+			
+	if(parseFloat(data.boltwood.iHumidity) > 80)
+		$("#__boltwood__iHumidity").css("background-color", "red")
+	else if(parseFloat(data.boltwood.iHumidity) > 70)
+		$("#__humidity__iHumidity").css("background-color", "yellow")
+	else
+		$("#__humidity__iHumidity").css("background-color", "transparent")
+
+}
+
+function RefreshImgs()
+{
+	
+	console.log("REFRESHING.");
+	// remvoe the allsky
+	$( "#allsky_img" ).remove();
+	//put back an updated copy
+	$( "#allsky_span" ).append("<img id=\"allsky_img\">");
+	$( "#allsky_img" )
+		.attr("src", "https://www.lpl.arizona.edu/~css/bigelow/AllSkyCurrentImage.JPG"+"?T="+Math.random());
+	
+	
+	//remove stale lightning_img
+	$( "#lightning_img" ).remove();
+	//put back a stale
+	$( "#lightning_span" ).append("<img  id=\"lightning_img\">");
+	$( "#lightning_img" )
+		.attr( "src", "http://mogit.as.arizona.edu/static/lightning.gif"+"?T="+Math.random())
+		.attr("height", 480)
+		.attr("width", 650);
+
+	setTimeout( RefreshImgs, 5*60000 );
+}
+
+
+function main()
+{//Everything is started here.
+	TH_PLTINTVL = null;	
+	var url = 'latest.json';
+	var getter = new Getter( url, 500 );
+	getter.AddCallback( CheckThreshold );
+	getter.AddCallback( format );
+
+
+$("<img>").attr("id", "dome_camera")
+	.attr("src", "http://kuiper.as.arizona.edu:42081/mjpg/1/video.mjpg?camera=1&timestamp=1540281321946")
+	.load(function (){
+		$(this).appendTo("#dome_camera_container");
+	});
+
+$("<img>").attr("id", "finderscope")
+	.attr("src", "http://kuiper.as.arizona.edu:42081/mjpg/3/video.mjpg?camera=3&timestamp=1540281321946")
+	.load(function (){
+		$(this).appendTo("#finderscope_container");
+	});
+
+
+setTimeout( RefreshImgs, 1000 );
+//getter.AddCallback( updateAladin );
+//idle_tasks();
+//refreshImgs();
+}	
+
+</script>
+
+</head>
+
+<body onload="main()">	
+	<div class=tinfo>
+		<span class="title">Dome Camera and Finder Scope </span>
+		<span id="dome_camera_container"></span>
+		<hr/>
+		<span id="finderscope_container"></span>
+	</div>
+	<!--
+	<div class="tinfo" id="aladin"> 
+		<span class="title">Current Position </span>
+		<div id="aladin-lite-div" style="width:300px;height:430px;"></div>
+		<script type="text/javascript">
+			aladin = A.aladin('#aladin-lite-div', {survey: "P/DSS2/color", fov:1});
+		</script>
+	</div>	
+	-->
+
+	<div class=tinfo id="allsky_div">
+
+		<span class="title">All Sky and Lightning </span>
+		<span id="allsky_span">
+		<img id="allsky_img" src="https://www.lpl.arizona.edu/~css/bigelow/AllSkyCurrentImage.JPG" />
+		</span>
+		<hr/>
+		<span id="lightning_span">
+		<img id="lightning_img" src="http://mogit.as.arizona.edu/static/lightning.gif" height=480 width=650 />
+		</span>
+	</div>	
+	<!--
+	<div class=tinfo id="finder_div">
+
+		<span class="title">Finder Scope </span>
+
+		<img id="finder_img" src="http://kuiper.as.arizona.edu:42081/mjpg/3/video.mjpg?camera=3&timestamp=1540285680955" height="250px", width="300px"/>
+	</div>
+	-->
+	<div class=tinfo>
+
+		<span class="title">Weather Conditions </span>
+		<table>
+
+			<tr><td>Dome Humidity </td><td id="__humidity__humidity"></td><td>%</td></tr>
+			<tr><td>Dome Temp</td><td id="__humidity__ambient_temp"></td><td>&deg F</td></tr>
+			<tr><td>Tube Temp</td><td id="__humidity__tube_temp"></td><td>&deg F</td></tr>
+		</table>
+		<hr>
+
+		<table>
+
+			<tr><td>Wind Speed </td><td id="__boltwood__fWindSpeed"></td><td>MPH</td></tr>
+			<tr><td>Outside Humidity </td><td id="__boltwood__iHumidity"></td><td>%</td></tr>
+			<tr><td>Outside Temp</td><td id="__boltwood__fAmbientTemp"></td><td>&deg F</td></tr>
+		</table>
+	</div>
+	<div class=tinfo>
+
+		<span class="title">Telemetry </span>
+		<div style="margin-top:20px;"><span id="ra_sex" class="coords" style="margin-right:20px;"></span><span id="dec_sex" class="coords"></span></div>
+		<hr/>
+		<div><span id="__ngtelem__altitude" style="margin-right:20px;" class="coords"></span><span id="__ngtelem__azimuth" class="coords"></span><div>
+		<hr/>
+		<table>
+			<tr><td> Airmass</td><td id="__ngtelem__airmass"></td></tr>
+			<tr><td> LST</td><td id="lst_sex"></td><td></td></tr>
+			<tr><td> Dome Slit</td><td id="__upperdome__state"></td></tr>
+		</table>
+	</div>
+
+</body>
+
+</html>
+
+
