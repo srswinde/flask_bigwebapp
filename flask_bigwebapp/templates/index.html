@@ -2,9 +2,11 @@
 
 
 <head>	
+<meta http-equiv="refresh" content="30">
 <title>Bigelow Weather</title>
 
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
 <!-- include Aladin Lite CSS file in the head section of your page 
 <link rel="stylesheet" href="http://aladin.u-strasbg.fr/AladinLite/api/v2/latest/aladin.min.css" />
 -->
@@ -142,7 +144,6 @@ function CheckThreshold(data)
 function RefreshImgs()
 {
 	
-	console.log("REFRESHING.");
 	// remvoe the allsky
 	$( "#allsky_img" ).remove();
 	//put back an updated copy
@@ -258,6 +259,7 @@ setTimeout( RefreshImgs, 1000 );
 		<div><span id="__ngtelem__altitude" style="margin-right:20px;" class="coords"></span><span id="__ngtelem__azimuth" class="coords"></span><div>
 		<hr/>
 		<table>
+			<tr><td> Focus</td><td id="__ngtelem_xall__focus"></td></tr>
 			<tr><td> Airmass</td><td id="__ngtelem__airmass"></td></tr>
 			<tr><td> LST</td><td id="lst_sex"></td><td></td></tr>
 			<tr><td> Dome Slit</td><td id="__upperdome__state"></td></tr>
